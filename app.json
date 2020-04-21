@@ -1,0 +1,17 @@
+{
+  "name": "cityweather",
+  "displayName": "cityweather",
+  "expo": {
+    "name": "cityweather",
+    "slug": "cityweather",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
