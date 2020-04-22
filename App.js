@@ -1,33 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View, StatusBar } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 
 import homeScreen from './app/screens/homeScreen';
+import searchScreen from './app/screens/searchScreen';
 
-const Stack = createStackNavigator();
+const MainStack = createBottomTabNavigator();
 
-function App() {
+export default function App() {
   return (
-    <NavigationContainer >
-      <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={homeScreen}
-        options={{
-          title: '🌤 Cityweather',
-          headerStyle: {
-            backgroundColor: 'black',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      />
-      </Stack.Navigator>
+    <NavigationContainer>
+      <MainStack.Navigator>
+        <MainStack.Screen name="Home" component={homeScreen} />
+        <MainStack.Screen name="Two" component={searchScreen} />
+      </MainStack.Navigator>
     </NavigationContainer>
   );
 }
-
-export default App;

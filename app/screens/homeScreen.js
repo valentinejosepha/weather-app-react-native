@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from 'react';
 import {
   View,
   Text,
@@ -6,121 +6,140 @@ import {
   FlatList,
   StatusBar,
   TouchableHighlight,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export default class App extends React.Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
-    var navigation = this.props.navigation;
     this.state = {
       cities: [
         {
-          name: "London",
-          country: "UK",
+          name: 'London',
+          country: 'UK',
         },
         {
-          name: "Paris",
-          country: "France",
+          name: 'Edinburgh',
+          country: 'UK',
         },
         {
-          name: "Lisbon",
-          country: "Portugal",
+          name: 'New York',
+          country: 'US',
         },
         {
-          name: "Doha",
-          country: "Qatar",
+          name: 'Washington',
+          country: 'US',
         },
         {
-          name: "Cancun",
-          country: "Mexico",
+          name: 'Paris',
+          country: 'France',
         },
         {
-          name: "Sydney",
-          country: "Australia",
+          name: 'Doha',
+          country: 'Qatar',
         },
         {
-          name: "Madrid",
-          country: "Spain",
+          name: 'Sydney',
+          country: 'Australia',
         },
         {
-          name: "New York",
-          country: "US",
+          name: 'Cancun',
+          country: 'Mexico',
         },
         {
-          name: "Los Angeles",
-          country: "US",
+          name: 'Madrid',
+          country: 'Spain',
         },
         {
-          name: "Barcelona",
-          country: "Spain",
+          name: 'Berlin',
+          country: 'Germany',
         },
         {
-          name: "New Delhi",
-          country: "India",
+          name: 'Brussels',
+          country: 'Belgium',
         },
         {
-          name: "Athens",
-          country: "Greece",
+          name: 'Copenhagen',
+          country: 'Denmark',
         },
         {
-          name: "Warsaw",
-          country: "Poland",
+          name: 'Athens',
+          country: 'Greece',
         },
         {
-          name: "Copenhagen",
-          country: "Denmark",
+          name: 'New Delhi',
+          country: 'India',
         },
         {
-          name: "Texas",
-          country: "US",
+          name: 'Dublin',
+          country: 'Ireland',
         },
         {
-          name: "Dublin",
-          country: "Ireland",
+          name: 'Rome',
+          country: 'Italy',
         },
         {
-          name: "Rome",
-          country: "Italy",
+          name: 'Tokyo',
+          country: 'Japan',
         },
         {
-          name: "Tokyo",
-          country: "Japan",
+          name: 'Wellington',
+          country: 'New Zealand',
         },
         {
-          name: "Wellington",
-          country: "New Zealand",
+          name: 'Amsterdam',
+          country: 'Netherlands',
         },
         {
-          name: "Amsterdam",
-          country: "Netherlands",
+          name: 'Oslo',
+          country: 'Norway',
         },
         {
-          name: "Oslo",
-          country: "Norway",
+          name: 'Panama City',
+          country: 'Panama',
         },
         {
-          name: "Panama City",
-          country: "Panama",
+          name: 'Lisbon',
+          country: 'Portugal',
         },
         {
-          name: "Moscow",
-          country: "Russia",
+          name: 'Warsaw',
+          country: 'Poland',
+        },
+        {
+          name: 'Moscow',
+          country: 'Russia',
         },
       ],
       list: [],
-      refresh: true,
+      isRefreshing: true,
+      isLoading: true,
+      newAlert: 0,
     };
+  }
+
+  componentDidMount() {
     this.fetchTemps();
   }
 
-  getRandom = (array, number) => {
-    var result = new Array(number),
-      len = array.length,
+  fetchTemps = () => {
+    let newList = [];
+    let list = this.getRandomCities(this.state.cities, 7);
+    for (city in list) {
+      let cityName = list[city].name;
+      let country = list[city].country;
+
+      this.fetchCityTemp(cityName, country, newList);
+    }
+  };
+
+  getRandomCities = (arr, n) => {
+    let result = new Array(n),
+      len = arr.length,
       taken = new Array(len);
-    while (number--) {
-      var x = Math.floor(Math.random() * len);
-      result[number] = array[x in taken ? taken[x] : x];
+    while (n--) {
+      let x = Math.floor(Math.random() * len);
+      result[n] = arr[x in taken ? taken[x] : x];
       taken[x] = --len in taken ? taken[len] : len;
     }
     return result;
@@ -129,176 +148,251 @@ export default class App extends React.Component {
   loadNewTemps = () => {
     this.setState({
       list: [],
-      refresh: true,
+      isRefreshing: true,
     });
-    this.fetchTemps();
-  };
 
-  fetchTemps = () => {
-    var newList = [];
-    var list = this.getRandom(this.state.cities, 7);
-    for (city in list) {
-      var name = list[city].name;
-      var country = list[city].country;
-      this.fetchCityTemp(name, country, newList);
-    }
+    this.fetchTemps();
   };
 
   fetchCityTemp = (city, country, newList) => {
     fetch(
-      "http://api.openweathermap.org/data/2.5/weather?q=" +
+      'http://api.openweathermap.org/data/2.5/weather?q=' +
         city +
-        "," +
+        ',' +
         country +
-        "&appid=5fb2333ba75358bc5030738944a75305&units=metric"
+        '&appid=5d7fc00a2159b9e5213d4d88292559e1&units=metric',
     )
-      .then((response) => response.json())
-      .then((responseJson) => {
-        var res = responseJson.main;
-        var object = responseJson;
-        var city = {
-          name: object.name,
+      .then(response => response.json())
+      .then(responseJson => {
+        const r = responseJson.main;
+        const obj = responseJson;
+        const city = {
+          name: obj.name,
           country: country,
-          temp: Math.ceil(res.temp),
-          type: object.weather[0].main,
-          desc: 'Humidity: '+res.humidity+'% - '+object.weather[0].main,
+          temp: Math.ceil(r.temp),
+          type: obj.weather[0].main,
+          desc: 'Humidity: ' + r.humidity + '% - ' + obj.weather[0].main,
         };
+
         newList.push(city);
+        console.log('before', this.state.list);
         this.setState({
           list: newList,
-          refresh: false,
+          isRefreshing: false,
         });
+        console.log('after', this.state.list);
       });
   };
 
-  getTempRange = (t) => {
-    if (t < 11) {
-      return 1;
+  getTempRange = temp => {
+    if (temp < 11) {
+      return 'cold';
     }
-    if (t > 10 && t < 20) {
-      return 2;
+
+    if (temp > 10 && temp < 20) {
+      return 'medium';
     }
-    if (t >= 20 && t < 30) {
-      return 3;
+
+    if (temp >= 20 && temp < 30) {
+      return 'hot';
     }
-    if (t >= 30) {
-      return 4;
+
+    if (temp >= 30) {
+      return 'veryHot';
     }
   };
 
-  getEmoji = (type) => {
-    if (type == 'Clouds') {
+  getEmoji = weatherType => {
+    if (weatherType == 'Clouds') {
       return '☁️';
     }
-    if (type == 'Clear') {
+
+    if (weatherType == 'Clear') {
       return '☀️';
     }
-    if (type == 'Haze') {
+
+    if (weatherType == 'Haze') {
       return '🌥';
     }
-    if (type == 'Thunderstorm') {
+
+    if (weatherType == 'Smoke') {
+      return '🌥';
+    }
+
+    if (weatherType == 'Thunderstorm') {
       return '⛈';
     }
-    if (type == 'Rain') {
+
+    if (weatherType == 'Rain') {
       return '🌧';
     }
-    if (type == 'Snow') {
-      return '❄️';
+
+    if (weatherType == 'Snow') {
+      return '❄';
     }
-    if (type == 'Mist') {
-      return '☁️';
+
+    if (weatherType == 'Mist') {
+      return '🌫';
     }
-  }
+    if (weatherType == 'Fog') {
+      return '🌫';
+    }
+
+    if (weatherType == 'Drizzle') {
+      return '🌫';
+    }
+  };
 
   render() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
+        <Text style={styles.header}>☀️ CityWeather</Text>
         <FlatList
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           data={this.state.list}
-          refreshing={this.state.refresh}
+          refreshing={this.state.isRefreshing}
           onRefresh={this.loadNewTemps}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => (
             <TouchableHighlight
-              underlayColor='white'
-              onPress={() => alert(item.desc)}
+              underlayColor="white"
+              onPress={() =>
+                this.setState({ newAlert: 1, alertMsg: item.desc })
+              }
             >
               <LinearGradient
-                colors={["rgba(0,0,0,0.05)", "rgba(0,0,0,0)"]}
+                colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0)']}
                 start={[0, 0.5]}
               >
                 <View style={styles.row}>
                   <Text
                     style={[
-                      this.getTempRange(item.temp) == 1
-                        ? styles.cold
-                        : styles.temp,
-                      this.getTempRange(item.temp) == 2
-                        ? styles.medium
-                        : styles.temp,
-                      this.getTempRange(item.temp) == 3
-                        ? styles.hot
-                        : styles.temp,
-                      this.getTempRange(item.temp) == 4
-                        ? styles.vhot
-                        : styles.temp,
-                      styles.temp,
+                      styles[this.getTempRange(item.temp)],
+                      styles.cityTemp,
                     ]}
                   >
                     {this.getEmoji(item.type)} {item.temp}°C
                   </Text>
-                  <Text style={styles.cityN}>{item.name}</Text>
+                  <Text style={styles.cityName}>{item.name}</Text>
                 </View>
               </LinearGradient>
             </TouchableHighlight>
           )}
         />
+
+        {this.state.newAlert == 1 ? (
+          <View style={styles.newAlertContainer}>
+            <View style={styles.alertMessageContainer}>
+              <LinearGradient
+                style={styles.gradientBackground}
+                colors={['#136a8a', '#267871']}
+                start={[0, 0.65]}
+              >
+                <Text style={styles.alertMessageText}>
+                  {this.state.alertMsg}
+                </Text>
+
+                <TouchableHighlight
+                  underlayColor="white"
+                  onPress={() => this.setState({ alertMsg: '', newAlert: 0 })}
+                >
+                  <Text style={styles.closeButton}>Close</Text>
+                </TouchableHighlight>
+              </LinearGradient>
+            </View>
+          </View>
+        ) : null}
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  cold: {
-    color: "blue",
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
-  medium: {
-    color: "green",
-  },
-  hot: {
-    color: "orange",
-  },
-  vhot: {
-    color: "red",
-  },
-  temp: {
-    fontSize: 30,
-    lineHeight: 40,
-    width: 130,
-    marginRight: 15,
-    fontWeight: "bold",
-    fontFamily: "Avenir",
-  },
-  cityN: {
-    fontSize: 20,
-    lineHeight: 40,
-    fontFamily: "Avenir",
+  header: {
+    width: '100%',
+    paddingTop: 40,
+    paddingBottom: 15,
+    backgroundColor: 'black',
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   row: {
     flex: 1,
     paddingVertical: 25,
     paddingHorizontal: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: "white",
+    borderBottomColor: 'white',
   },
-  container: {
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
+  cityName: {
+    fontSize: 20,
+    lineHeight: 40,
+    fontFamily: 'Avenir',
+  },
+  cityTemp: {
+    fontSize: 30,
+    lineHeight: 40,
+    width: 130,
+    marginRight: 15,
+    fontWeight: 'bold',
+    fontFamily: 'Avenir',
+  },
+  cold: {
+    color: 'blue',
+  },
+  medium: {
+    color: 'green',
+  },
+  hot: {
+    color: 'orange',
+  },
+  veryHot: {
+    color: 'red',
+  },
+  gradientBackground: {
     flex: 1,
+    borderRadius: 20,
+    justifyContent: 'space-between',
+    padding: 5,
+  },
+  newAlertContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  alertMessageContainer: {
+    width: '75%',
+    height: 90,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+  },
+  alertMessageText: {
+    fontSize: 16,
+    color: 'white',
+    padding: 10,
+    textAlign: 'center',
+  },
+  closeButton: {
+    fontWeight: 'bold',
+    color: 'white',
+    padding: 10,
+    textAlign: 'center',
   },
 });
